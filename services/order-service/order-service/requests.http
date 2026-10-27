@@ -1,0 +1,9 @@
+### Create Order
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+
+{
+  "customerId": "CUST-1001",
+  "totalAmount": 149.99,
+  "currency": "USD"
+}
