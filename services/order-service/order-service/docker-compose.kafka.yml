@@ -5,9 +5,12 @@ services:
     container_name: retail-kafka
     ports:
       - "9092:9092"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
 
       # 9092 = applications running on Windows
       # 29092 = communication between Docker containers
@@ -40,3 +43,5 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
     depends_on:
       - kafka
+volumes:
+  kafka-data:

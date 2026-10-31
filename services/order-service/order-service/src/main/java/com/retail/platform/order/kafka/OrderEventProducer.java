@@ -1,6 +1,7 @@
 package com.retail.platform.order.kafka;
 
 import com.retail.platform.order.event.OrderCreatedEvent;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ public class OrderEventProducer {
     private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
 
     public OrderEventProducer(
+            @Qualifier("jsonKafkaTemplate")
             KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
