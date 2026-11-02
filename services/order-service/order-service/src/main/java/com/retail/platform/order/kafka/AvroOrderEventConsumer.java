@@ -35,7 +35,7 @@ public class AvroOrderEventConsumer {
             );
 
             // Business processing completed successfully
-
+            acknowledgment.acknowledge();
             log.info("Acknowledged offset={}", record.offset());
 
         } catch (Exception ex) {
