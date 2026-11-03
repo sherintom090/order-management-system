@@ -1,6 +1,7 @@
 
 package com.retail.platform.inventory.entity;
 
+import com.retail.platform.inventory.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -59,7 +60,7 @@ public class Inventory {
         }
 
         if (availableQuantity < quantity) {
-            throw new IllegalStateException(
+            throw new InsufficientStockException(
                     "Insufficient stock for product: " + productId);
         }
 

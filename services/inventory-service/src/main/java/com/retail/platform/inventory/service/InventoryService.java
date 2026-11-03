@@ -9,6 +9,7 @@ import com.retail.platform.inventory.repository.InventoryReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.retail.platform.inventory.exception.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -39,36 +40,54 @@ public class InventoryService {
                                 "Product not found: " + productId));
     }
 
+
     @Transactional
     public void reserveStock(
             String orderId,
             String productId,
             int quantity) {
 
-        // Idempotency check
-        if (reservationRepository.existsByOrderIdAndProductId(
-                orderId, productId)) {
-            return;
+        if (orderId == null || orderId.isBlank()
+                || productId == null || productId.isBlank()
+                || quantity <= 0) {
+            throw new IllegalArgumentException(
+                    "Invalid reservation request");
+        }
+
+        var existing = reservationRepository
+                .findByOrderIdAndProductId(orderId, productId);
+
+        if (existing.isPresent()) {
+            InventoryReservation reservation = existing.get();
+
+            if (reservation.getQuantity() != quantity) {
+                throw new IllegalStateException(
+                        "Reservation already exists with different quantity");
+            }
+
+            if (reservation.getStatus() == ReservationStatus.RESERVED
+                    || reservation.getStatus() == ReservationStatus.CONFIRMED) {
+                return;
+            }
+
+            throw new IllegalStateException(
+                    "Reservation has already been released");
         }
 
         Inventory inventory = inventoryRepository
                 .findByProductId(productId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new ResourceNotFoundException(
                                 "Product not found: " + productId));
 
-        // Validate and update available stock
         inventory.reserve(quantity);
 
-        // Create reservation record
         InventoryReservation reservation =
                 new InventoryReservation(orderId, productId, quantity);
 
         reservationRepository.save(reservation);
-
-        // Inventory entity is managed by JPA.
-        // Hibernate automatically persists its changes on flush.
     }
+
 
 
     @Transactional
@@ -98,8 +117,8 @@ public class InventoryService {
         Inventory inventory = inventoryRepository
                 .findByProductId(productId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "Inventory not found"));
+                        new ResourceNotFoundException(
+                                "Reservation not found for order: " + orderId));
 
         inventory.confirm(reservation.getQuantity());
         reservation.confirm();
