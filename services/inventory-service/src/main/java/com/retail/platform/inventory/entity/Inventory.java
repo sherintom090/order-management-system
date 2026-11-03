@@ -77,6 +77,20 @@ public class Inventory {
         availableQuantity += quantity;
     }
 
+
+    public void confirm(int quantity) {
+
+        if (quantity <= 0 || quantity > reservedQuantity) {
+            throw new IllegalArgumentException(
+                    "Invalid confirmation quantity");
+        }
+
+        // Stock has already been deducted from availableQuantity
+        // during reservation. Only reservedQuantity decreases.
+        reservedQuantity -= quantity;
+    }
+
+
     @PrePersist
     void onCreate() {
         OffsetDateTime now = OffsetDateTime.now();

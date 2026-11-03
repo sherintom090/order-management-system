@@ -30,6 +30,12 @@ public class InventoryReservation {
     @Column(name = "product_id", nullable = false, length = 100)
     private String productId;
 
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+
     @Column(name = "quantity", nullable = false)
     private int quantity;
 

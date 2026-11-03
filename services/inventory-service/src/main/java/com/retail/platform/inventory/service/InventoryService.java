@@ -3,6 +3,7 @@ package com.retail.platform.inventory.service;
 
 import com.retail.platform.inventory.entity.Inventory;
 import com.retail.platform.inventory.entity.InventoryReservation;
+import com.retail.platform.inventory.entity.ReservationStatus;
 import com.retail.platform.inventory.repository.InventoryRepository;
 import com.retail.platform.inventory.repository.InventoryReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -67,5 +68,74 @@ public class InventoryService {
 
         // Inventory entity is managed by JPA.
         // Hibernate automatically persists its changes on flush.
+    }
+
+
+    @Transactional
+    public void confirmReservation(
+            String orderId,
+            String productId) {
+
+        InventoryReservation reservation =
+                reservationRepository
+                        .findByOrderIdAndProductId(orderId, productId)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Reservation not found"));
+
+        // Idempotent confirmation
+        if (reservation.getStatus() ==
+                ReservationStatus.CONFIRMED) {
+            return;
+        }
+
+        if (reservation.getStatus() !=
+                ReservationStatus.RESERVED) {
+            throw new IllegalStateException(
+                    "Reservation cannot be confirmed");
+        }
+
+        Inventory inventory = inventoryRepository
+                .findByProductId(productId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Inventory not found"));
+
+        inventory.confirm(reservation.getQuantity());
+        reservation.confirm();
+    }
+
+    @Transactional
+    public void releaseReservation(
+            String orderId,
+            String productId) {
+
+        InventoryReservation reservation =
+                reservationRepository
+                        .findByOrderIdAndProductId(orderId, productId)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Reservation not found"));
+
+        // Idempotent release
+        if (reservation.getStatus() ==
+                ReservationStatus.RELEASED) {
+            return;
+        }
+
+        if (reservation.getStatus() !=
+                ReservationStatus.RESERVED) {
+            throw new IllegalStateException(
+                    "Reservation cannot be released");
+        }
+
+        Inventory inventory = inventoryRepository
+                .findByProductId(productId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Inventory not found"));
+
+        inventory.release(reservation.getQuantity());
+        reservation.release();
     }
 }
