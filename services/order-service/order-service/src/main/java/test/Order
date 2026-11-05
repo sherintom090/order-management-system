@@ -1,0 +1,1 @@
+Record Order(Double Amount, String CustId){}
