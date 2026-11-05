@@ -1,6 +1,7 @@
 package com.retail.platform.inventory.config;
 
 import com.retail.platform.inventory.security.KeycloakRoleConverter;
+import com.retail.platform.inventory.security.ServiceAccountAuthorization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,7 +15,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http) throws Exception {
+            HttpSecurity http, ServiceAccountAuthorization serviceAccountAuthorization) throws Exception {
 
         JwtAuthenticationConverter jwtConverter =
                 new JwtAuthenticationConverter();
@@ -28,11 +29,25 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+
                         .requestMatchers(
                                 "/actuator/health",
                                 "/actuator/health/**"
                         ).permitAll()
 
+                        // Internal reservation operations
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/inventory/reservations"
+                        ).access((authentication, context) ->
+                                new org.springframework.security.authorization.AuthorizationDecision(
+                                        serviceAccountAuthorization.canReserve(
+                                                authentication.get()
+                                        )
+                                )
+                        )
+
+                        // Existing inventory management APIs
                         .requestMatchers(
                                 "/api/v1/inventory",
                                 "/api/v1/inventory/**"
