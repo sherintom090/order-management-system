@@ -2,6 +2,8 @@ package com.retail.platform.gateway.filter;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.stereotype.Component;
@@ -12,15 +14,18 @@ public class RateLimitMonitoringFilter
         extends AbstractGatewayFilterFactory<
         RateLimitMonitoringFilter.Config> {
 
-    private final Counter failOpenCounter;
+    private static final Logger log =
+            LoggerFactory.getLogger(RateLimitMonitoringFilter.class);
+
+    private final Counter suspectedFailOpenCounter;
 
     public RateLimitMonitoringFilter(MeterRegistry registry) {
         super(Config.class);
 
-        this.failOpenCounter = Counter.builder(
-                        "gateway.ratelimit.failopen")
+        this.suspectedFailOpenCounter = Counter.builder(
+                        "gateway.ratelimit.suspected.failopen")
                 .description(
-                        "Requests allowed when rate limiting fails open")
+                        "Potential rate limiter fail-open events inferred from response headers")
                 .register(registry);
     }
 
@@ -35,7 +40,12 @@ public class RateLimitMonitoringFilter
                             .getFirst("X-RateLimit-Remaining");
 
                     if ("-1".equals(remaining)) {
-                        failOpenCounter.increment();
+
+                        suspectedFailOpenCounter.increment();
+
+                        log.warn(
+                                "Potential rate limiter fail-open detected. path={}",
+                                exchange.getRequest().getPath());
                     }
                 }));
     }
