@@ -40,6 +40,8 @@ public class SecurityConfig {
                                 "/actuator/health/**"
                         ).permitAll()
 
+                        .pathMatchers("/livez", "/readyz").permitAll()
+
                         .pathMatchers(
                                 HttpMethod.POST,
                                 "/api/v1/orders",
