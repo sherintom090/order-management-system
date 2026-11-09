@@ -5,11 +5,13 @@ import com.retail.platform.order.dto.OrderResponse;
 import com.retail.platform.order.entity.Order;
 import com.retail.platform.order.service.OrderService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {
@@ -64,6 +66,8 @@ public class OrderController {
 
     @GetMapping
     public Page<OrderResponse> getOrders(@RequestParam(required = false) String status, Pageable pageable) {
+
+        log.info("Order Service received request");
         return orderService.getOrders(status, pageable);
     }
 

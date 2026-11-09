@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
+import org.slf4j.MDC;
 
 @Configuration
 public class InventoryRestClientConfig {
@@ -26,6 +27,16 @@ public class InventoryRestClientConfig {
 
                     request.getHeaders()
                             .setBearerAuth(accessToken);
+
+                    // Propagate correlation ID
+                    String correlationId = MDC.get("correlationId");
+
+                    if (correlationId != null && !correlationId.isBlank()) {
+                        request.getHeaders().set(
+                                "X-Correlation-ID",
+                                correlationId
+                        );
+                    }
 
                     return execution.execute(request, body);
                 })
