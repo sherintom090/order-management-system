@@ -78,6 +78,13 @@ public class SecurityConfig {
                         .authenticationEntryPoint(jsonAuthenticationEntryPoint)
                         .accessDeniedHandler(jsonAccessDeniedHandler)
                 )
+                .headers(headers -> headers
+                        .contentTypeOptions(contentType -> {})
+                        .hsts(hsts -> hsts
+                                .includeSubdomains(true)
+                                .maxAge(java.time.Duration.ofDays(365))
+                        )
+                )
                 .build();
     }
 }
