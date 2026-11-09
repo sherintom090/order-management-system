@@ -47,6 +47,8 @@ public class SecurityConfig {
                                 "/api/v1/inventory/**"
                         ).hasAnyRole("INVENTORY_MANAGER", "ADMIN")
 
+                        .pathMatchers("/fallback/orders").permitAll()
+
                         .anyExchange().denyAll()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
