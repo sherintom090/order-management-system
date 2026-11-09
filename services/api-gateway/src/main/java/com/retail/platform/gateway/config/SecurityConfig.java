@@ -47,7 +47,10 @@ public class SecurityConfig {
                                 "/api/v1/inventory/**"
                         ).hasAnyRole("INVENTORY_MANAGER", "ADMIN")
 
-                        .pathMatchers("/fallback/orders").permitAll()
+                        .pathMatchers(
+                                "/fallback/orders",
+                                "/fallback/inventory"
+                        ).permitAll()
 
                         .anyExchange().denyAll()
                 )

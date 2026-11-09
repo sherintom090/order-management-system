@@ -27,4 +27,20 @@ public class FallbackController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(response);
     }
+
+    @GetMapping("/fallback/inventory")
+    public ResponseEntity<Map<String, Object>> inventoryFallback() {
+
+        Map<String, Object> response = Map.of(
+                "status", 503,
+                "error", "Service Unavailable",
+                "message", "Inventory Service is temporarily unavailable",
+                "timestamp", Instant.now().toString()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
 }
