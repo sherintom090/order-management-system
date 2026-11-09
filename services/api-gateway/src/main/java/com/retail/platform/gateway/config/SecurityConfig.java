@@ -1,6 +1,9 @@
 package com.retail.platform.gateway.config;
 
+import com.retail.platform.gateway.security.JsonAccessDeniedHandler;
+import com.retail.platform.gateway.security.JsonAuthenticationEntryPoint;
 import com.retail.platform.gateway.security.KeycloakRoleConverter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,8 +14,13 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
+
+    private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
+    private final JsonAccessDeniedHandler jsonAccessDeniedHandler;
+
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(
@@ -65,6 +73,10 @@ public class SecurityConfig {
                                     return Mono.just(authentication);
                                 })
                         )
+                )
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(jsonAuthenticationEntryPoint)
+                        .accessDeniedHandler(jsonAccessDeniedHandler)
                 )
                 .build();
     }
