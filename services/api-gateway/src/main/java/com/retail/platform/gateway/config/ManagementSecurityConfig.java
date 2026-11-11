@@ -18,9 +18,10 @@ public class ManagementSecurityConfig {
         return http
                 .securityMatcher(EndpointRequest.toAnyEndpoint())
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/actuator/health/**").permitAll()
+                                .anyExchange().permitAll()
+                        /*.pathMatchers("/actuator/health/**").permitAll()
                         .pathMatchers("/actuator/info").permitAll()
-                        .anyExchange().denyAll()
+                        .anyExchange().denyAll()*/
                 )
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .build();

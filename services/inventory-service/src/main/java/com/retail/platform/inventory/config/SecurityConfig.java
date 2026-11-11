@@ -32,7 +32,7 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/actuator/health",
-                                "/actuator/health/**"
+                                "/actuator/**"
                         ).permitAll()
 
                         // Internal reservation operations
