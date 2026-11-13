@@ -158,6 +158,21 @@
         </dependency>
 
 
+        <!-- Micrometer Tracing API and OpenTelemetry bridge -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+
+        <!-- Export traces using OpenTelemetry Protocol -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
+
+
+
+
     </dependencies>
 
     <build>
