@@ -17,8 +17,29 @@
 
     </appender>
 
+
+    <!-- Rolling JSON file logging -->
+    <appender name="JSON_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>../../monitoring/logs/api-gateway.json</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>../../monitoring/logs/api-gateway.%d{yyyy-MM-dd}.%i.json.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"service":"${serviceName}"}</customFields>
+        </encoder>
+    </appender>
+
+
     <root level="INFO">
         <appender-ref ref="JSON"/>
+        <appender-ref ref="JSON_FILE"/>
     </root>
 
 </configuration>

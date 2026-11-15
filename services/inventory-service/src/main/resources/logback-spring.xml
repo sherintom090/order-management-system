@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+
 <configuration>
 
     <springProperty
@@ -7,22 +7,37 @@
             source="spring.application.name"
             defaultValue="inventory-service"/>
 
-    <!-- JSON Console Appender -->
-    <appender name="JSON"
+    <!-- JSON console logging -->
+    <appender name="JSON_CONSOLE"
               class="ch.qos.logback.core.ConsoleAppender">
-
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-
-            <customFields>
-                {"service":"${serviceName}"}
-            </customFields>
-
+            <customFields>{"service":"${serviceName}"}</customFields>
         </encoder>
     </appender>
 
-    <!-- Root Logger -->
+    <!-- Rolling JSON file logging -->
+    <appender name="JSON_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>../../monitoring/logs/inventory-service.json</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>
+                ../../monitoring/logs/inventory-service.%d{yyyy-MM-dd}.%i.json.gz
+            </fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"service":"${serviceName}"}</customFields>
+        </encoder>
+    </appender>
+
     <root level="INFO">
-        <appender-ref ref="JSON"/>
+        <appender-ref ref="JSON_CONSOLE"/>
+        <appender-ref ref="JSON_FILE"/>
     </root>
 
 </configuration>
